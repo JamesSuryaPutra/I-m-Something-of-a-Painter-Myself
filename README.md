@@ -1,23 +1,46 @@
-# Enefit: Predict Energy Behavior of Prosumers
-
-# Overview
-The goal of the competition is to create an energy prediction model of prosumers to reduce energy imbalance costs.
-
-This competition aims to tackle the issue of energy imbalance, a situation where the energy expected to be used doesn't line up with the actual energy used or produced. Prosumers, who both consume and generate energy, contribute a large part of the energy imbalance. Despite being only a small part of all consumers, their unpredictable energy use causes logistical and financial problems for the energy companies.
+# I'm Something of a Painter Myself
 
 # Description
-The number of prosumers is rapidly increasing, and solving the problems of energy imbalance and their rising costs is vital. If left unaddressed, this could lead to increased operational costs, potential grid instability, and inefficient use of energy resources. If this problem were effectively solved, it would significantly reduce the imbalance costs, improve the reliability of the grid, and make the integration of prosumers into the energy system more efficient and sustainable. Moreover, it could potentially incentivize more consumers to become prosumers, knowing that their energy behavior can be adequately managed, thus promoting renewable energy production and use.
+We recognize the works of artists through their unique style, such as color choices or brush strokes. The “je ne sais quoi” of artists like Claude Monet can now be imitated with algorithms thanks to generative adversarial networks (GANs). In this getting started competition, you will bring that style to your photos or recreate the style from scratch!
 
-# About us
-Enefit is one of the biggest energy companies in Baltic region. As experts in the field of energy, we help customers plan their green journey in a personal and flexible manner as well as implement it by using environmentally friendly energy solutions.
+Computer vision has advanced tremendously in recent years and GANs are now capable of mimicking objects in a very convincing way. But creating museum-worthy masterpieces is thought of to be, well, more art than science. So can (data) science, in the form of GANs, trick classifiers into believing you’ve created a true Monet? That’s the challenge you’ll take on!
 
-At present, Enefit is attempting to solve the imbalance problem by developing internal predictive models and relying on third-party forecasts. However, these methods have proven to be insufficient due to their low accuracy in forecasting the energy behavior of prosumers. The shortcomings of these current methods lie in their inability to accurately account for the wide range of variables that influence prosumer behavior, leading to high imbalance costs. By opening up the challenge to the world's best data scientists through the Kaggle platform, Enefit aims to leverage a broader pool of expertise and novel approaches to improve the accuracy of these predictions and consequently reduce the imbalance and associated costs.
+# The challenge
+A GAN consists of at least two neural networks: a generator model and a discriminator model. The generator is a neural network that creates the images. For our competition, you should generate images in the style of Monet. This generator is trained using a discriminator.
+
+The two models will work against each other, with the generator trying to trick the discriminator, and the discriminator trying to accurately classify the real vs. generated images.
+
+Your task is to build a GAN that generates 7,000 to 10,000 Monet-style images.
 
 # Evaluation
-Submissions are evaluated on the Mean Absolute Error (MAE) between the predicted return and the observed target. The formula is given by:
-MAE=1n∑i=1n|yi−xi|
+MiFID:
+Submissions are evaluated on MiFID (Memorization-informed Fréchet Inception Distance), which is a modification from Fréchet Inception Distance (FID). The smaller MiFID is, the better your generated images are.
 
-Where:
-- n is the total number of data points.
-- yi is the predicted value for data point i.
-- xi is the observed value for data point i.
+# What is FID?
+FID, along with Inception Score (IS), are both commonly used in recent publications as the standard for evaluation methods of GANs.
+
+In FID, we use the Inception network to extract features from an intermediate layer. Then we model the data distribution for these features using a multivariate Gaussian distribution with mean µ and covariance Σ. The FID between the real images r and generated images g is computed as:
+FID=||μr−μg||2+Tr(Σr+Σg−2(ΣrΣg)1/2)
+
+where Tr sums up all the diagonal elements. FID is calculated by computing the Fréchet distance between two Gaussians fitted to feature representations of the Inception network.
+
+# What is MiFID (memorization-informed FID)?
+In addition to FID, Kaggle takes training sample memorization into account.
+
+The memorization distance is defined as the minimum cosine distance of all training samples in the feature space, averaged across all user generated image samples. This distance is thresholded, and it's assigned to 1.0 if the distance exceeds a pre-defined epsilon.
+
+In mathematical form:
+dij=1−cos(fgi,frj)=1−fgi⋅frj|fgi||frj|
+
+where fg and fr represent the generated/real images in feature space (defined in pre-trained networks); and fgi and frj represent the ith and jth vectors of fg and fr, respectively.
+
+d=1N∑iminjdij
+ 
+defines the minimum distance of a certain generated image (i) across all real images ((j), then averaged across all the generated images.
+
+dthr=d.(if d<e) or l.(otherwise)
+
+defines the threshold of the weight only applies when the (d) is below a certain empirically determined threshold.
+
+Finally, this memorization term is applied to the FID:
+MiFID=FID⋅1/dthr
